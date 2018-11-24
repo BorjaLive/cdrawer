@@ -1,9 +1,9 @@
 # cdrawer
 Un pequeño header para dibujar BMPs en la consola.
-#Descipción:
+# Descipción:
 Permite mostrar pixel por pixel los colores (24bits) de un archivo bmp.<br />
 Entre las opciones extra se incluyen pequeñas transiciones para dinamizar la aparicion de imagenes y la opción de rescalar xN veces cada pixel.
-##Imagenes en general:
+## Imagenes en general:
 Cualquier BMP de 24 bits puede ser mostrado con la siguiente función.
 ```
 dibujar("sources/foto.bmp", 10, 15, RGB(255,0,255), 3, 500);
@@ -13,7 +13,7 @@ foto.bmp: el archivo a mostrar.<br />
 RGB(255,0,255): el color de fondo. Los pixeles con este color no se mostraran, para dibujar imagenes con transparencia. Si no quieres eliminar el fondo, puedes pasar un 0.<br />
 3: animación selecionada, no es necesario.<br />
 500: velocidad de la animación. Cada franja se mostrará en 1000/500 milisegundos. No es necesaria, la velocidad por defecto es 1000/200 milisegundos.
-###Tabla de animaciones y opciones de dibujado:
+### Tabla de animaciones y opciones de dibujado:
 0: sin animaciones, por defecto.<br />
 1: Barrido de arriba a abajo.<br />
 2: Barrido de abajo a arriba.<br />
@@ -22,7 +22,7 @@ RGB(255,0,255): el color de fondo. Los pixeles con este color no se mostraran, p
 5: Barrido de izquierda a derecha y arriba a abajo.<br />
 6: Rescala a x2.<br />
 4+n: Rescala a n veces. A partir de n = 2.
-##Numeros:
+## Numeros:
 Simplifica la tarea de mostrar por pantalla números enteros positivos.
 ```
 dibujarN(972);
