@@ -130,7 +130,7 @@ void dibujar(char* nombre,int x,int y,COLORREF bg,int anim = 0, int speed = 100)
     ReleaseDC(myconsole, mydc);
 }
 
-int dibujarN(int n, int x = 0, int y = 0){
+int dibujarN(int n, int x = 0, int y = 0, int anim = 0, int speed = 500){
     int nO = n;
     int i = -1;
     char src[20] = "sources/X.bmp";
@@ -141,7 +141,7 @@ int dibujarN(int n, int x = 0, int y = 0){
     n = nO;
     do{
         src[8] = (n%10)+48;
-        dibujar(src, x+(i*70), y, RGB(255,0,255), 0);
+        dibujar(src, x+(i*(anim>5?70*(anim-4):70)), y, RGB(255,0,255), anim, speed);
         n /= 10;
         i--;
     }while(n > 0);
