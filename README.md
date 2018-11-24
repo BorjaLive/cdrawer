@@ -25,6 +25,10 @@ RGB(255,0,255): el color de fondo. Los pixeles con este color no se mostraran, p
 ## Numeros:
 Simplifica la tarea de mostrar por pantalla números enteros positivos.
 ```
-dibujarN(972);
+dibujarN(972, 10, 15, 6, 700);
 ```
-972: el numero a mosrar.
+
+972: el numero a mosrar.<br />
+10, 15: la posición en pixeles de la esquina superior izquierda en el eje x e y. No es necesario<br />
+6: animación selecionada, no es necesario.<br />
+700: velocidad de la animación. Cada franja se mostrará en 1000/700 milisegundos. No es necesaria, la velocidad por defecto es 1000/500 milisegundos.
