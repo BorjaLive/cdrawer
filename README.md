@@ -3,6 +3,8 @@ Un pequeño header para dibujar BMPs en la consola.
 # Descipción:
 Permite mostrar pixel por pixel los colores (24bits) de un archivo bmp.<br />
 Entre las opciones extra se incluyen pequeñas transiciones para dinamizar la aparicion de imagenes y la opción de rescalar xN veces cada pixel.
+## Implementacion:
+Necesitaras agregar el archivo libgdi32.a al linker e incluir cdrawer.h
 ## Imagenes en general:
 Cualquier BMP de 24 bits puede ser mostrado con la siguiente función.
 ```
