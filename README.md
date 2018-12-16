@@ -48,7 +48,7 @@ RGB(255,0,255): Color de fondo a eliminar. NOTA: Al tratarse de una animación, 
 2: Escala a la que se dibujará la animación.<br />
 50: Tiempo en milisegundos a esperar entre fotogramas.<br />
 5: Dado que el dibujo es secuencial y no asincrono, la función no terminara de ejecutarse hasta que el bucle se repita; en este caso, 5 veces.<br />
-##Numeros con animaciones:
+## Numeros con animaciones:
 Regresan los gatetes con carteles, esta vez animados.
 ```
 dibujarNanim(1586, 10, 50, 2, 50, 5);
