@@ -181,7 +181,7 @@ void dibujarAnim(char* nombre,int x,int y,COLORREF bg, int n,int scale = 1, int 
 }
 
 
-int dibujarN(int n, int x = 0, int y = 0, int anim = 0, int speed = 500){
+void dibujarN(int n, int x = 0, int y = 0, int anim = 0, int speed = 500){
     char src[20] = "sources/cats/X.bmp";
     char numero[10];
     _int2charArray(n, numero);
@@ -194,9 +194,9 @@ int dibujarN(int n, int x = 0, int y = 0, int anim = 0, int speed = 500){
     }
 }
 
-int dibujarNanim(int n, int x = 0, int y = 0, int scale = 1, int wait = 100, int repeat = 5){
-    int tamanos[10] = {10,9,9,12,10,8,9,9,6,8}
-    //char src[20] = "sources/catsGif/X.bmp";
+void dibujarNanim(int n, int x = 0, int y = 0, int scale = 1, int wait = 150, int repeat = 5){
+    int tamanos[10] = {10,9,9,12,10,8,9,9,6,8};
+    COLORREF bg = RGB(255,0,255);
     char numero[10];
     _int2charArray(n, numero);
     int cifras = strlen(numero);
@@ -211,11 +211,17 @@ int dibujarNanim(int n, int x = 0, int y = 0, int scale = 1, int wait = 100, int
     }while(n > 0);
     n = nO;
     do{
-        cifra[k] = (n%10)+48;
+        cifra[k] = (n%10);
         k++;
         n /= 10;
         i--;
     }while(n > 0);
+    int tmp;
+    for(int i = 0; i < cifras/2; i++){
+        tmp = cifra[i];
+        cifra[i] = cifra[cifras-i-1];
+        cifra[cifras-i-1] = tmp;
+    }
 
 
     int width, height;
@@ -223,19 +229,19 @@ int dibujarNanim(int n, int x = 0, int y = 0, int scale = 1, int wait = 100, int
     if(width == 0 || height == 0) return;
 
     COLORREF data[width*height];
-    COLORREF imagenes[cofras][12][height][width];
+    COLORREF imagenes[cifras][12][height][width];
     char nombre[50] = "sources/catsGif/0_X.bmp";
     char archivo[50];
 
     for(int m = 0; m < cifras; m++){ //Recorrer cifras
         nombre[16] = cifra[m]+48;
-        for(int l = 0; l < tamanos[cifra[m]; l++){ //Recorrer animaciones
+        for(int l = 0; l < tamanos[cifra[m]]; l++){ //Recorrer animaciones
             _getNombreArchivo(nombre, l, archivo);
 
             ReadBMP(archivo, data);
             int j = height-1, k = 0;
             for(int i = 0; i < height*width; i++){
-                imagen[m][l][j][k] = bg==data[i]?0:data[i];
+                imagenes[m][l][j][k] = bg==data[i]?0:data[i];
                 if(k == width-1){
                     k = 0;
                     j--;
@@ -246,18 +252,28 @@ int dibujarNanim(int n, int x = 0, int y = 0, int scale = 1, int wait = 100, int
         }
     }
 
+    HWND myconsole = GetConsoleWindow();
+    HDC mydc = GetDC(myconsole);
 
-    for(int m = 0; m < repeat; m++){
-        for(int l = 0; l < n; l ++){
-            for(int p = 0; p < cifras; p++){
-                for(int i = 0; i < height*scale; i++)
-                    for(int j = 0; j < width*scale; j++)
-                        SetPixel(mydc,j+x,i+y,imagen[p][l][i/scale][j/scale]);
-            }
-            Sleep(wait);
+    int contador[cifras];
+    for(int i = 0; i < cifras; i++)
+        contador[i] = 0;
+    for(int m = 0; m < repeat*12; m++){
+        for(int p = 0; p < cifras; p++){
+            for(int i = 0; i < height*scale; i++)
+                for(int j = 0; j < width*scale; j++)
+                    SetPixel(mydc,j+x+(50*p*scale),i+y,imagenes[p][contador[p]][i/scale][j/scale]);
+        }
+        Sleep(wait);
+        for(int i = 0; i < cifras; i++){
+            if(tamanos[cifra[i]]-1 > contador[i])
+                contador[i]++;
+            else
+                contador[i] = 0;
         }
     }
 
+    ReleaseDC(myconsole, mydc);
 }
 
 
