@@ -59,3 +59,15 @@ dibujarNanim(1586, 10, 50, 2, 50, 5);
 2: escala de las imagenes.<br />
 50: Tiempo en milisegundos a esperar entre fotogramas.<br />
 5: Numero de veces que se repitirá la animacion.<br />
+# Videos
+Ahora cdrawer permite "reproducir" "videos". Deben estar separados por frames en bmp y el audio extraido en wav.
+```
+dibujarVideo("sources/Nyan/Nyan_",24,24,168,25,100,30);
+```
+"sources/Nyan/Nyan_": Hubicacion del video. En este ejemplo el fotograma número 15 se llamará Nyan_15.bmp y el audio se llamará Nyan_audio.wav <br />
+24: Framerate del video original.<br />
+24: Framerate al que se reproduciran las imagenes.<br />
+168: Numero total de fotogramas.<br />
+25: Permisividad, cuando más bajo sea más estricto será a la hora de determinar si dos pixeles tien el mismo color y, por tanto, más lento será el dibujado.<br />
+100: Posicion en la x de la esquina superior izquierda.<br />
+30: Posicion en la y de la esquina superior izquierda.<br />

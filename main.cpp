@@ -9,7 +9,7 @@ int main(){
     dibujarNanim(1546, 10, 50, 2, 150, 5);
     dibujarVideo("sources/Nyan/Nyan_",24,24,168,25,100,30);
     //dibujarVideo("sources/DerpSheIs/DerpSheIs_",24,12,960,25,100,30);
-    //dibujarVideo("sources/AMV/AMV_",29,8,5730,25,100,30);
+    //dibujarVideo("sources/AMV/AMV_",29,12,5730,25,100,30);
 
 
     std::cin.ignore();
