@@ -4,10 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctime>
 #define _WIN32_WINNT 0x0500
 #include <windows.h>
+#include <mmsystem.h>
+
+#define FrameSkipping false
 
 
+int _colorDiff(COLORREF color1, COLORREF color2);
+int _aprox(float n);
 void _getNombreArchivo(char * nombre, int n, char archivo[50]);
 void _int2charArray(int n, char *cadena);
 void _strinv(char * cadena);
@@ -172,7 +178,8 @@ void dibujarAnim(char* nombre,int x,int y,COLORREF bg, int n,int scale = 1, int 
         for(int l = 0; l < n; l ++){
             for(int i = 0; i < height*scale; i++)
                 for(int j = 0; j < width*scale; j++)
-                    SetPixel(mydc,j+x,i+y,imagen[l][i/scale][j/scale]);
+                    if(l == 0 || imagen[l-1][i/scale][j/scale] != imagen[l][i/scale][j/scale])
+                        SetPixel(mydc,j+x,i+y,imagen[l][i/scale][j/scale]);
             Sleep(wait);
         }
     }
@@ -255,28 +262,178 @@ void dibujarNanim(int n, int x = 0, int y = 0, int scale = 1, int wait = 150, in
     HWND myconsole = GetConsoleWindow();
     HDC mydc = GetDC(myconsole);
 
-    int contador[cifras];
-    for(int i = 0; i < cifras; i++)
-        contador[i] = 0;
+    int contador[cifras][2];
+    for(int i = 0; i < cifras; i++){
+        contador[i][0] = 0;
+        contador[i][1] = -1; //Contador [i][1] tiene un desafase con [i][0]
+    }
     for(int m = 0; m < repeat*12; m++){
         for(int p = 0; p < cifras; p++){
             for(int i = 0; i < height*scale; i++)
                 for(int j = 0; j < width*scale; j++)
-                    SetPixel(mydc,j+x+(50*p*scale),i+y,imagenes[p][contador[p]][i/scale][j/scale]);
+                    if(contador[p][1] == -1 || imagenes[p][contador[p][1]][i/scale][j/scale] != imagenes[p][contador[p][0]][i/scale][j/scale])
+                        SetPixel(mydc,j+x+(50*p*scale),i+y,imagenes[p][contador[p][0]][i/scale][j/scale]);
         }
         Sleep(wait);
         for(int i = 0; i < cifras; i++){
-            if(tamanos[cifra[i]]-1 > contador[i])
-                contador[i]++;
+            contador[i][1] = contador[i][0];
+            if(tamanos[cifra[i]]-1 > contador[i][0])
+                contador[i][0]++;
             else
-                contador[i] = 0;
+                contador[i][0] = 0;
         }
     }
 
     ReleaseDC(myconsole, mydc);
 }
 
+void dibujarVideo(char* hubicacion, int fpsO, int fps, int frames, int tolerancia, int x, int y){
+    int targetTime = 1000/fps; //tiempo que debe durar cada cuadro (ms)
+    int nFotograms = ((float)frames/fpsO)*fps;
+    COLORREF bg = RGB(255,0,255); //Color morado, fondo transparente por defecto
 
+    char archivo[50];
+    strcpy(archivo,hubicacion); //se usa temporalmente para guardar el nombre de un archivo concreto
+    strcat(archivo,"0.bmp");
+
+    int width, height;
+    readBMPsize(archivo,width,height);
+
+    strcpy(archivo,hubicacion);
+    strcat(archivo,"audio.wav");
+    HWND myconsole = GetConsoleWindow();
+    HDC mydc = GetDC(myconsole);
+    PlaySoundA((LPCSTR) archivo, NULL, SND_FILENAME | SND_ASYNC);
+    clock_t Start;
+    int Total;
+
+    char numeros[10];
+    int l = 0, j, k;
+    int saltados = 0;
+
+    COLORREF dataNEW[width*height];
+    COLORREF dataOLD[width*height];
+    while(l < nFotograms && frames >= l*((float)fpsO/fps)){
+        Start = clock();
+
+        strcpy(archivo,hubicacion);
+        _int2charArray(l*((float)fpsO/fps),numeros);
+        strcat(archivo,numeros);
+        strcat(archivo,".bmp");
+        //printf("%.0f, ",(l+m)*((float)24/10));
+        ReadBMP(archivo, dataNEW);
+
+        j = height-1; k = 0;
+        for(int i = 0; i < height*width; i++){
+            if(l == 0 || _colorDiff(dataNEW[i], dataOLD[i]) > tolerancia)
+                SetPixel(mydc,k+x,j+y,dataNEW[i]);
+            if(k == width-1){
+                k = 0;
+                j--;
+            }else{
+                k++;
+            }
+            dataOLD[i] = dataNEW[i];
+        }
+
+        Total = clock() - Start;
+        if(Total >= targetTime){
+            //printf("%d",_aprox((float)Total/targetTime)); //Mostrar cuantos frames se saltan
+            l += _aprox((float)Total/targetTime);
+            saltados += _aprox((float)Total/targetTime)-1;
+        }else{
+            Sleep(targetTime-Total);
+            l++;
+        }
+    }
+    printf("SALTADOS: %d",saltados);
+    /*while(l < nFotograms){
+        m = 0;
+        Start = clock();
+        while(m < MaxBuffer && frames >= (l+m)*((float)24/10)){
+            strcpy(archivo,hubicacion);
+            _int2charArray((l+m)*((float)24/10),numeros);
+            strcat(archivo,numeros);
+            strcat(archivo,".bmp");
+            //printf("%.0f, ",(l+m)*((float)24/10));
+
+            ReadBMP(archivo, data);
+            cuadros[m] = data;
+            //system("CLS");
+
+            j = height-1; k = 0;
+            for(int i = 0; i < height*width; i++){
+                if(m == 0 || cuadros[m-1][i] != cuadros[m][i])
+                    SetPixel(mydc,k+x,j+y,cuadros[m][i]);
+                if(k == width-1){
+                    k = 0;
+                    j--;
+                }else{
+                    k++;
+                }
+            }
+
+            m++;
+        }
+        desfaseLectura = clock() - Start;
+        //printf("%d\n",desfaseLectura);
+        m = 0;
+
+        for(int m = 0; m < MaxBuffer; m++){
+
+            printf("%d, ",m);
+        }
+        l += MaxBuffer;
+
+        while(m < MaxBuffer){
+            Start = clock();
+            //printf("%d\n",m);
+            j = height-1; k = 0;
+            for(int i = 0; i < height*width; i++){
+                if(m == 0 || cuadros[m-1][i] != cuadros[m][i])
+                    SetPixel(mydc,k+x,j+y,cuadros[m][i]);
+                if(k == width-1){
+                    k = 0;
+                    j--;
+                }else{
+                    k++;
+                }
+            }
+
+            Total = (clock() - Start) + (desfaseLectura/5);
+
+            if(FrameSkipping){
+               if(Total >= targetTime){
+                    m += (Total/targetTime);
+                }else{
+                    //Sleep(targetTime-Total-5);
+                    m++;
+                }
+            }else{
+                m++;
+                if(Total < targetTime)
+                    Sleep(targetTime-Total-5);
+            }
+        }
+        l += m;
+    }*/
+
+
+    ReleaseDC(myconsole, mydc);
+}
+
+
+int _colorDiff(COLORREF color1, COLORREF color2){
+    return abs(GetRValue(color1)-GetRValue(color2))+abs(GetGValue(color1)-GetGValue(color2))+abs(GetBValue(color1)-GetBValue(color2));
+}
+int _aprox(float n){
+    int redondeado = 0;
+    while(n >= 0.5){
+        redondeado++;
+        n--;
+    }
+    return redondeado;
+}
 void _getNombreArchivo(char * nombre, int n, char archivo[50]){
     char numeros[10];
     _int2charArray(n, numeros);
