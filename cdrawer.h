@@ -9,6 +9,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+#define RecalTime 10
 #define FrameSkipping false
 
 
@@ -304,17 +305,24 @@ void dibujarVideo(char* hubicacion, int fpsO, int fps, int frames, int toleranci
     HWND myconsole = GetConsoleWindow();
     HDC mydc = GetDC(myconsole);
     PlaySoundA((LPCSTR) archivo, NULL, SND_FILENAME | SND_ASYNC);
-    clock_t Start;
+    clock_t Start, Recal;
     int Total;
 
     char numeros[10];
     int l = 0, j, k;
-    int saltados = 0;
+    int saltados = 0, RecalN = 0;
 
     COLORREF dataNEW[width*height];
     COLORREF dataOLD[width*height];
+    Recal = clock();
     while(l < nFotograms && frames >= l*((float)fpsO/fps)){
         Start = clock();
+        if(clock()-Recal > RecalTime*1000){
+            RecalN++;
+            //printf("RECAL: %d   ",l-((RecalN*RecalTime*1000)/targetTime));
+            l = (RecalN*RecalTime*1000)/targetTime;
+            Recal = clock();
+        }
 
         strcpy(archivo,hubicacion);
         _int2charArray(l*((float)fpsO/fps),numeros);
@@ -346,7 +354,8 @@ void dibujarVideo(char* hubicacion, int fpsO, int fps, int frames, int toleranci
             l++;
         }
     }
-    printf("SALTADOS: %d",saltados);
+
+    printf("SALTADOS: %d\nRECAL: %d",saltados,RecalN);
     /*while(l < nFotograms){
         m = 0;
         Start = clock();
