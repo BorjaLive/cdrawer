@@ -197,7 +197,7 @@ void dibujarN(int n, int x = 0, int y = 0, int anim = 0, int speed = 500){
     int i = 0;
     while(i < sizeof(numero)/sizeof(char) && numero[i] != '\0'){
         src[13] = numero[i];
-        dibujar(src, x+(i*70), y, RGB(255,0,255), anim, speed);
+        dibujar(src, x+(i*70*(anim>=6?anim-4:1)), y, RGB(255,0,255), anim, speed);
         i++;
     }
 }
