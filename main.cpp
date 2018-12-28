@@ -11,6 +11,11 @@ int main(){
     //dibujarVideo("sources/DerpSheIs/DerpSheIs_",24,12,960,25,100,30);
     //dibujarVideo("sources/AMV/AMV_",29,12,5730,25,100,30);
 
+    dibujarTexto("puedes escribir:",20,30,1,0);
+    char texto[100];
+    pedirTextoDibujado(texto,10,80,1,0,100);
+    dibujarTexto(texto,20,200,1,0);
+
 
     std::cin.ignore();
     return 0;

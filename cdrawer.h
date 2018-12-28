@@ -2,6 +2,7 @@
 #define CCOUNTINCG_H_INCLUDED
 
 #include <stdio.h>
+#include <conio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctime>
@@ -31,7 +32,6 @@ void readBMPsize(char* filename, int &width, int &height){
 
     fclose(f);
 }
-
 void ReadBMP(char* filename, COLORREF *imagen){
 
     int i;
@@ -58,6 +58,7 @@ void ReadBMP(char* filename, COLORREF *imagen){
     }
     fclose(f);
 }
+
 
 void dibujar(char* nombre,int x,int y,COLORREF bg,int anim = 0, int speed = 100){
     int width = 0, height = 0;
@@ -143,7 +144,6 @@ void dibujar(char* nombre,int x,int y,COLORREF bg,int anim = 0, int speed = 100)
 
     ReleaseDC(myconsole, mydc);
 }
-
 void dibujarAnim(char* nombre,int x,int y,COLORREF bg, int n,int scale = 1, int wait = 50, int repeat = 5){
     char archivo[50];
     int width = 0, height = 0;
@@ -188,7 +188,6 @@ void dibujarAnim(char* nombre,int x,int y,COLORREF bg, int n,int scale = 1, int 
     ReleaseDC(myconsole, mydc);
 }
 
-
 void dibujarN(int n, int x = 0, int y = 0, int anim = 0, int speed = 500){
     char src[20] = "sources/cats/X.bmp";
     char numero[10];
@@ -201,7 +200,6 @@ void dibujarN(int n, int x = 0, int y = 0, int anim = 0, int speed = 500){
         i++;
     }
 }
-
 void dibujarNanim(int n, int x = 0, int y = 0, int scale = 1, int wait = 150, int repeat = 5){
     int tamanos[10] = {10,9,9,12,10,8,9,9,6,8};
     COLORREF bg = RGB(255,0,255);
@@ -429,6 +427,135 @@ void dibujarVideo(char* hubicacion, int fpsO, int fps, int frames, int toleranci
 
 
     ReleaseDC(myconsole, mydc);
+}
+
+void dibujarTexto(char* text, int x, int y, int scale = 1, COLORREF bg = RGB(255,0,255), char* fuente = "sources/fonts/Default.bmp", int sizeW = 17, int sizeH = 24){
+    int width = 0, height = 0;
+
+    readBMPsize(fuente, width, height);
+    if(width == 0 || height == 0) return;
+
+    COLORREF data[width*height];
+    ReadBMP(fuente, data);
+
+    HWND myconsole = GetConsoleWindow();
+    HDC mydc = GetDC(myconsole);
+
+
+    int m = 0, diff = 0, ln = 0, n = 0;
+    do{
+        if(text[m] == '\n'){
+            ln++;
+            n=-1;
+        }
+
+        if(isalpha(text[m]))
+            diff = text[m]>90?97:65;
+        else if(isdigit(text[m]))
+            diff = 22;
+        else
+            diff = 0;
+
+        if(diff){
+            int l = text[m]-diff;
+            int j = sizeH-1, k = l*sizeW, i = k;
+            while(i < height*width){
+                SetPixel(mydc,k+x+((n-l)*sizeW),j+y+(ln*sizeH),data[i]);
+
+                if(k == ((l+1)*sizeW)-1){
+                    k = l*sizeW;
+                    j--;
+                    i += (35*sizeW)+1;
+                }else{
+                    k++;
+                    i++;
+                }
+            }
+        }
+        m++;n++;
+    }while(text[m] != 0);
+
+
+    ReleaseDC(myconsole, mydc);
+}
+void pedirTextoDibujado(char* texto, int x, int y, int scale = 1, COLORREF bg = RGB(255,0,255), int maxLen = 50, char* fuente = "sources/fonts/Default.bmp", int sizeW = 17, int sizeH = 24){
+    int width = 0, height = 0;
+    readBMPsize(fuente, width, height);
+    COLORREF data[width*height];
+    ReadBMP(fuente, data);
+
+    HWND myconsole = GetConsoleWindow();
+    HDC mydc = GetDC(myconsole);
+
+    int m = 0, diff = 0, ln = 0, sum = 0;
+    char c;
+
+    int j, k, i, l, n = 0;
+    do{
+        l = 0;
+        c = getch();
+
+        switch(c){
+        case 13:
+            ln++;
+            sum = 0;
+            m = 0;
+            break;
+        case 8:
+            sum = -1;
+            l = -1;
+            break;
+        case 27:
+            c = 0;
+            break;
+        default:
+            sum = 1;
+        }
+
+
+        if(isalpha(c))
+            diff = c>90?97:65;
+        else if(isdigit(c))
+            diff = 22;
+        else
+            diff = l==-1?1:0;
+
+        if(diff){
+            if(l != -1) l = c-diff;
+            j = sizeH-1;
+            i = k = l*sizeW;
+
+            while(i < height*width){
+                if(l == -1)
+                    SetPixel(mydc,k+x+((m)*sizeW),j+y+(ln*sizeH),bg==0?RGB(0,0,0):bg);
+                else
+                    SetPixel(mydc,k+x+((m-l)*sizeW),j+y+(ln*sizeH),data[i]);
+
+                if(k == ((l+1)*sizeW)-1){
+                    k = l*sizeW;
+                    j--;
+                    i += (35*sizeW)+1;
+                }else{
+                    k++;
+                    i++;
+                }
+            }
+        }
+
+        m += sum;
+
+        if(c == '\b')
+            texto[--n] = ' ';
+        else if(c == '\r'){
+            texto[n++] = '\n';
+        }else
+            texto[n++] = c;
+
+    }while(c != 0);
+
+
+    ReleaseDC(myconsole, mydc);
+    return texto;
 }
 
 
